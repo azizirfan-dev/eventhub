@@ -56,18 +56,18 @@ export class AuthService extends BaseService {
     });
 
     // === GIVE NEW USER PROMO (EXP 3 MONTHS) ===
-    newUserPromo = await this.prisma.promo.create({
-      data: {
-        code: `REF-${newReferralCode}`,
-        discount: 20000, // editable
-        isPercent: false,
-        usageLimit: 1, // cuma sekali dipakai
-        startDate: new Date(),
-        endDate: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000),
-        organizerId: user.id, // owner promo = user sendiri
-        eventId: "GLOBAL", // nanti dipakai di FE untuk semua event
-      },
-    });
+    // newUserPromo = await this.prisma.promo.create({
+    //   data: {
+    //     code: `REF-${newReferralCode}`,
+    //     discount: 20000, // editable
+    //     isPercent: false,
+    //     usageLimit: 1, // cuma sekali dipakai
+    //     startDate: new Date(),
+    //     endDate: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000),
+    //     organizerId: user.id, // owner promo = user sendiri
+    //     eventId: "GLOBAL", // nanti dipakai di FE untuk semua event
+    //   },
+    // });
 
     // === GEN TOKEN ===
     const token = generateToken({
