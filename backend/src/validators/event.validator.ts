@@ -7,4 +7,5 @@ export const createEventValidator = [
   body("endDate").isISO8601(),
   body("totalSeats").isInt({ min: 1 }),
   body("price").isInt({ min: 0 }),
+  body("banner").optional(),
 ];

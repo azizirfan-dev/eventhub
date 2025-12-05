@@ -311,6 +311,42 @@ export class TransactionService extends BaseService {
     });
   }
 
+  async getTransactionDetail(transactionId: string, userId: string) {
+  return await this.prisma.transaction.findFirst({
+    where: {
+      id: transactionId,
+      userId,
+      deletedAt: null,
+    },
+    include: {
+      items: {
+        include: {
+          event: true,
+          ticketType: true,
+        }
+      },
+      paymentProof: true,
+    },
+  });
+}
+
+
+  async getPendingTransactions() {
+  return await this.prisma.transaction.findMany({
+    where: { status: "WAITING_ADMIN" },
+    include: {
+      items: {
+        include: {
+          event: true,
+          ticketType: true
+        }
+      },
+      paymentProof: true
+    }
+  });
+}
+
+
   async autoCancelWaitingAdminTransactions() {
     return await this.prisma.$transaction(async (tx) => {
       const threeDaysAgo = new Date(Date.now() - 3 * 24 * 60 * 60 * 1000);

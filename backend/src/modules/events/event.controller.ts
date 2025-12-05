@@ -17,11 +17,28 @@ export class EventController extends BaseController {
     this.eventService = new EventService();
   }
 
-  createEvent = async (req: Request, res: Response, next: NextFunction) => {
-    const payload = req.body as CreateEventDTO;
+ createEvent = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const bannerUrl = (req as any).file?.path || null;
+
+    const payload = {
+      ...req.body,
+      totalSeats: parseInt(req.body.totalSeats),
+      availableSeats: parseInt(req.body.totalSeats), // awalnya = total
+      price: parseInt(req.body.price),
+      isPaid: req.body.isPaid === "true" || req.body.isPaid === true,
+      startDate: new Date(req.body.startDate),
+      endDate: new Date(req.body.endDate),
+      bannerUrl,
+    };
+
     const result = await this.eventService.createEvent(req.user!.id, payload);
+
     return this.sendSuccess(res, result, "Event created");
-  };
+  } catch (error) {
+    next(error);
+  }
+};
 
   getMyEvents = async (req: Request, res: Response, next: NextFunction) => {
     const result = await this.eventService.getOrganizerEvents(req.user!.id);

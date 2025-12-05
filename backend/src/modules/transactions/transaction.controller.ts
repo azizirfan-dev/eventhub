@@ -3,6 +3,7 @@ import { BaseController } from "../../core/base.controller";
 import { TransactionService } from "./transaction.service";
 import { CreateTransactionDTO, UploadProofDTO } from "./transaction.dto";
 import { AppError } from "../../utils/app-error";
+import { Result } from "express-validator";
 
 export class TransactionController extends BaseController {
   private transactionService = new TransactionService();
@@ -39,6 +40,25 @@ export class TransactionController extends BaseController {
     return this.sendSuccess(res, result, "Payment proof uploaded");
   };
 
+  getPendingTransactions = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const data = await this.transactionService.getPendingTransactions();
+    return this.sendSuccess(res, data, "Success");
+  } catch (error) {
+    next(error);
+  }
+};
+
+getTransactionDetail = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { id } = req.params;
+    const { id: userId } = req.user!;
+    const data = await this.transactionService.getTransactionDetail(id, userId);
+    return this.sendSuccess(res, data, "Success");
+  } catch (error) {
+    next(error);
+  }
+};
 
 
   approveTransaction = async (req: Request, res: Response, next: NextFunction) => {

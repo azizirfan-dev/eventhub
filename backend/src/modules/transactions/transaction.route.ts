@@ -8,7 +8,8 @@ const controller = new TransactionController();
 
 router.post("/apply-promo", authMiddleware, controller.applyPromo);
 router.post("/", authMiddleware, controller.createTransaction);
-router.get("/", authMiddleware, controller.getMyTransactions);
+router.get("/me", authMiddleware, controller.getMyTransactions);
+router.get("/:id", authMiddleware, controller.getTransactionDetail);
 router.post(
   "/:id/upload-proof",
   authMiddleware,
@@ -16,6 +17,7 @@ router.post(
   cloudinaryUploader,
   controller.uploadProof
 );
+router.get("/pending", authMiddleware, controller.getPendingTransactions);
 router.patch("/:id/approve", authMiddleware, controller.approveTransaction);
 router.patch("/:id/reject", authMiddleware, controller.rejectTransaction);
 router.patch("/:id/cancel", authMiddleware, controller.cancelTransaction);
