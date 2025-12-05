@@ -7,7 +7,6 @@ export class UserService extends BaseService {
         const user = await this.prisma.user.findUnique({
             where: { id: userId },
             include: {
-                coupons: true,
                 pointHistories: true,
                 referrals: true
             }
@@ -52,7 +51,6 @@ export class UserService extends BaseService {
             include: {
                 referrals: true,
                 pointHistories: true,
-                coupons: true
             }
         });
 
@@ -61,7 +59,6 @@ export class UserService extends BaseService {
         return {
             totalRefferals: user.referrals.length,
             points: user.points,
-            coupons: user.coupons,
             pointHistory: user.pointHistories,
         };
     }

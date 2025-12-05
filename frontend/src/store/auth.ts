@@ -1,38 +1,43 @@
+// src/store/auth.ts
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
-interface User {
+export interface AuthUser {
   id: string;
-  email: string;
   name: string;
+  email: string;
   role: string;
 }
 
 interface AuthState {
-  user: User | null;
   token: string | null;
-  login: (data: { user: User; token: string }) => void;
-  logout: () => void;
+  user: AuthUser | null;
+  isAuthenticated: boolean;
+  setAuth: (payload: { token: string; user: AuthUser }) => void;
+  clearAuth: () => void;
 }
 
-export const useAuthStore = create(
-  persist<AuthState>(
+export const useAuthStore = create<AuthState>()(
+  persist(
     (set) => ({
-      user: null,
       token: null,
-
-      // Login -> save token & user state
-      login: ({ user, token }) =>
-        set({ user, token }),
-
-      // Logout -> clear state + storage
-      logout: () => {
-        set({ user: null, token: null });
-        localStorage.removeItem("auth-storage");
-      },
+      user: null,
+      isAuthenticated: false,
+      setAuth: ({ token, user }) =>
+        set({
+          token,
+          user,
+          isAuthenticated: true,
+        }),
+      clearAuth: () =>
+        set({
+          token: null,
+          user: null,
+          isAuthenticated: false,
+        }),
     }),
     {
-      name: "auth-storage", // localStorage key
+      name: "eventhub-auth", // localStorage key
     }
   )
 );

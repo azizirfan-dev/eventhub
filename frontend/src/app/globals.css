@@ -120,7 +120,3 @@
     @apply bg-background text-foreground;
   }
 }
-.input {
-  @apply w-full p-2 bg-zinc-800 text-white rounded;
-}
-

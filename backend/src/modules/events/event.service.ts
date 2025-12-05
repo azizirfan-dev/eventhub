@@ -159,6 +159,9 @@ export class EventService extends BaseService {
       limit = 10,
     } = query;
 
+    const parsedPage = Number(page) || 1;
+    const parsedLimit = Number(limit) || 10;
+
     const where: any = {
       deletedAt: null,
       ...(search && {
@@ -193,8 +196,8 @@ export class EventService extends BaseService {
 
     const events = await this.prisma.event.findMany({
       where,
-      skip: (page - 1) * limit,
-      take: limit,
+      skip: (parsedPage - 1) * parsedLimit,
+      take: parsedLimit,
       orderBy: sortOptions[sort] || sortOptions.latest,
       include: {
         organizerProfile: { select: { rating: true } },
@@ -206,65 +209,65 @@ export class EventService extends BaseService {
 
     return {
       events,
-      pagination: {
-        page,
-        limit,
-        totalPages: Math.ceil(total / limit),
+     pagination: {
+    page: parsedPage,
+    limit: parsedLimit,
+    totalPages: Math.ceil(total / parsedLimit),
       },
     };
   }
   async getEventAttendees(eventId: string, organizerId: string) {
-  const event = await this.prisma.event.findUnique({
-    where: { id: eventId }
-  });
+    const event = await this.prisma.event.findUnique({
+      where: { id: eventId }
+    });
 
-  if (!event) throw new AppError("Event not found", 404);
-  if (event.organizerId !== organizerId)
-    throw new AppError("Forbidden", 403);
+    if (!event) throw new AppError("Event not found", 404);
+    if (event.organizerId !== organizerId)
+      throw new AppError("Forbidden", 403);
 
-  const attendees = await this.prisma.transactionItem.findMany({
-    where: {
-      eventId,
-      transaction: { status: "DONE" }
-    },
-    include: {
-      transaction: {
-        include: {
-          user: { select: { name: true, email: true } }
-        }
+    const attendees = await this.prisma.transactionItem.findMany({
+      where: {
+        eventId,
+        transaction: { status: "DONE" }
       },
-      ticketType: true
-    }
-  });
+      include: {
+        transaction: {
+          include: {
+            user: { select: { name: true, email: true } }
+          }
+        },
+        ticketType: true
+      }
+    });
 
-  return attendees.map((item) => ({
-    buyerName: item.transaction.user.name,
-    buyerEmail: item.transaction.user.email,
-    ticketType: item.ticketType?.name,
-    quantity: item.quantity,
-    totalPaid: item.price * item.quantity,
-    status: item.transaction.status
-  }));
-}
-
-async listEvents(cursor?: string, limit: number = 10) {
-  const events = await this.prisma.event.findMany({
-    where: { deletedAt: null },
-    take: limit + 1,
-    ...(cursor && { skip: 1, cursor: { id: cursor } }),
-    orderBy: { createdAt: "desc" }
-  });
-
-  let nextCursor: string | null = null;
-  if (events.length > limit) {
-    const next = events.pop();
-    nextCursor = next?.id ?? null;
+    return attendees.map((item) => ({
+      buyerName: item.transaction.user.name,
+      buyerEmail: item.transaction.user.email,
+      ticketType: item.ticketType?.name,
+      quantity: item.quantity,
+      totalPaid: item.price * item.quantity,
+      status: item.transaction.status
+    }));
   }
 
-  return {
-    data: events,
-    nextCursor
-  };
-}
+  async listEvents(cursor?: string, limit: number = 10) {
+    const events = await this.prisma.event.findMany({
+      where: { deletedAt: null },
+      take: limit + 1,
+      ...(cursor && { skip: 1, cursor: { id: cursor } }),
+      orderBy: { createdAt: "desc" }
+    });
+
+    let nextCursor: string | null = null;
+    if (events.length > limit) {
+      const next = events.pop();
+      nextCursor = next?.id ?? null;
+    }
+
+    return {
+      data: events,
+      nextCursor
+    };
+  }
 
 }
