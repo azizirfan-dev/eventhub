@@ -5,6 +5,6 @@ import { authMiddleware } from "../../middlewares/auth.middleware";
 const router = Router();
 const controller = new DashboardController();
 
-router.get("/", authMiddleware, controller.getDashboard);
+router.get("/statistics", authMiddleware, controller.getDashboard);
 
 export default router;

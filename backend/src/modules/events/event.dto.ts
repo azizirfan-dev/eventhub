@@ -8,6 +8,7 @@ export interface CreateEventDTO {
   totalSeats: number;
   price: number;
   isPaid: boolean;
+  bannerUrl: string;
 }
 
 export interface UpdateEventDTO {
@@ -20,6 +21,7 @@ export interface UpdateEventDTO {
   totalSeats?: number;
   price?: number;
   isPaid?: boolean;
+  bannerUrl?: string;
 }
 
 export interface CreateTicketDTO {

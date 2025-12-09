@@ -1,36 +1,48 @@
 // src/app/events/[id]/page.tsx
-import { api } from "@/lib/api";
+"use client";
+
+import { useEffect, useState } from "react";
+import { useParams } from "next/navigation";
 import EventDetailClient from "@/components/events/event-detail-client";
 
-interface EventDetailApiResponse {
-  status: string;
-  message: string;
-  data: any;
-}
-
-async function getEvent(eventId: string) {
+async function fetchEvent(id: string) {
   try {
     const baseUrl = process.env.NEXT_PUBLIC_API_URL;
-    const res = await fetch(`${baseUrl}/events/${eventId}`, {
+    const res = await fetch(`${baseUrl}/events/${id}`, {
       cache: "no-store",
     });
-
     if (!res.ok) return null;
-
     const json = await res.json();
     return json.data;
-  } catch (error) {
-    console.error("Failed to fetch event:", error);
+  } catch (err) {
+    console.error("Failed to fetch event:", err);
     return null;
   }
 }
 
-export default async function EventDetailPage(props: {
-  params: Promise<{ id: string }>;
-}) {
-  const { id } = await props.params; // <== FIX params Promise
+export default function EventDetailPage() {
+  const params = useParams();
+  const id = params?.id as string;
 
-  const event = await getEvent(id);
+  const [event, setEvent] = useState<any | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!id) return;
+
+    fetchEvent(id).then((data) => {
+      setEvent(data);
+      setLoading(false);
+    });
+  }, [id]);
+
+  if (loading) {
+    return (
+      <div className="mx-auto max-w-4xl py-20 text-center">
+        Loading event...
+      </div>
+    );
+  }
 
   if (!event) {
     return (

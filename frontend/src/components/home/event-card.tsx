@@ -2,7 +2,6 @@
 import { DiscoverEvent } from "@/hooks/useDiscoverEvents";
 import { format } from "date-fns";
 import Link from "next/link";
-// HAPUS: import { id as localeId } from "date-fns/locale";
 
 interface EventCardProps {
   event: DiscoverEvent;

@@ -1,7 +1,5 @@
-// src/app/page.tsx (Server Component)
+import HomeServer from "@/components/home/home-server";
 
-import HomeClient from "@/components/home/home-client";
-
-export default function HomePage() {
-  return <HomeClient />;
+export default function HomePage({ searchParams }: any) {
+  return <HomeServer searchParams={searchParams} />;
 }

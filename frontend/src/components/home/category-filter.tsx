@@ -1,58 +1,46 @@
-// src/components/home/category-filter.tsx
 "use client";
 
-import { useDiscoverFilters } from "@/hooks/useDiscoverFilters";
-
-const CATEGORIES = [
-  "All",
-  "Music",
-  "Festival",
-  "Workshop",
-  "Sport",
-  "Conference",
-  "Exhibition",
-  "Community",
-];
+import { CATEGORIES } from "@/lib/constants/categories";
+import { categoryGradients, defaultGradient } from "@/lib/constants/category-colors";
+import { DiscoverFiltersState } from "@/hooks/useDiscoverFilters";
 
 interface CategoryFilterProps {
-  filtersHook: ReturnType<typeof useDiscoverFilters>;
+  filtersHook: {
+    filters: DiscoverFiltersState;
+    setFilters: (updates: Partial<DiscoverFiltersState>) => void;
+  };
 }
 
 export function CategoryFilter({ filtersHook }: CategoryFilterProps) {
-  const { filters, setCategory } = filtersHook;
+  const { filters, setFilters } = filtersHook;
 
-  const activeCategory = filters.category ?? "All";
+  const handlePick = (cat: string) => {
+    setFilters({
+      category: cat === filters.category ? undefined : cat,
+    });
+  };
 
   return (
-    <section className="border-b border-slate-200 bg-white">
-      <div className="mx-auto max-w-6xl px-4 py-3 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between gap-3">
-          <h2 className="text-sm font-semibold text-slate-700">
-            Browse by category
-          </h2>
-        </div>
-        <div className="mt-3 flex gap-2 overflow-x-auto pb-1">
-          {CATEGORIES.map((cat) => {
-            const isActive = activeCategory === cat;
-            return (
-              <button
-                key={cat}
-                type="button"
-                onClick={() =>
-                  setCategory(cat === "All" ? null : cat.toLowerCase())
-                }
-                className={`whitespace-nowrap rounded-full border px-3 py-1.5 text-xs font-medium transition ${
-                  isActive
-                    ? "border-indigo-500 bg-indigo-50 text-indigo-700"
-                    : "border-slate-200 bg-white text-slate-600 hover:border-indigo-200 hover:bg-indigo-50/60 hover:text-indigo-700"
-                }`}
-              >
-                {cat}
-              </button>
-            );
-          })}
-        </div>
-      </div>
-    </section>
+    <div className="w-full overflow-x-auto px-4 no-scrollbar py-3 flex gap-2 justify-center">
+      {CATEGORIES.map((cat) => {
+        const isActive = filters.category === cat;
+        const gradient = categoryGradients[cat] ?? defaultGradient;
+
+        return (
+          <button
+            key={cat}
+            onClick={() => handlePick(cat)}
+            className={`whitespace-nowrap rounded-full px-4 py-2 text-sm font-medium transition
+            ${
+              isActive
+                ? `bg-linear-to-r ${gradient} text-white shadow-md scale-105`
+                : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+            }`}
+          >
+            {cat}
+          </button>
+        );
+      })}
+    </div>
   );
 }

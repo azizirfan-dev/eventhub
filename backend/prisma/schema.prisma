@@ -14,6 +14,7 @@ model User {
   password             String
   name                 String
   role                 Role      @default(CUSTOMER)
+  avatarUrl            String?   @db.Text
   referralCode         String    @unique
   referredById         String?
   points               Int       @default(0)
@@ -61,6 +62,7 @@ model Event {
   availableSeats     Int
   price              Int
   isPaid             Boolean   @default(true)
+  bannerUrl          String?
   createdAt          DateTime  @default(now())
   updatedAt          DateTime  @updatedAt
   deletedAt          DateTime?
@@ -88,29 +90,29 @@ model TicketType {
 }
 
 model Promo {
-  id          String   @id @default(cuid())
-  code        String   @unique
+  id          String  @id @default(cuid())
+  code        String  @unique
   description String?
 
-  discount    Int
-  isPercent   Boolean  @default(false)
-  isGlobal    Boolean  @default(false)
+  discount  Int
+  isPercent Boolean @default(false)
+  isGlobal  Boolean @default(false)
 
   eventId     String?
   organizerId String?
 
-  startDate   DateTime
-  endDate     DateTime
+  startDate DateTime
+  endDate   DateTime
 
-  usageLimit  Int?
-  usedCount   Int       @default(0)
+  usageLimit Int?
+  usedCount  Int  @default(0)
 
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  deletedAt   DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
 
-  event        Event?     @relation(fields: [eventId], references: [id])
-  organizer    User?      @relation("OrganizerPromos", fields: [organizerId], references: [id])
+  event        Event?        @relation(fields: [eventId], references: [id])
+  organizer    User?         @relation("OrganizerPromos", fields: [organizerId], references: [id])
   transactions Transaction[]
 }
 

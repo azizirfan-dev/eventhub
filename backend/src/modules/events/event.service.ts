@@ -21,6 +21,7 @@ export class EventService extends BaseService {
       totalSeats,
       price,
       isPaid,
+      bannerUrl,
     } = data;
 
     return await this.prisma.event.create({
@@ -35,57 +36,161 @@ export class EventService extends BaseService {
         availableSeats: totalSeats,
         price,
         isPaid,
+        bannerUrl,
         organizerId: userId,
       },
     });
   }
 
-  async getOrganizerEvents(userId: string) {
-    return await this.prisma.event.findMany({
-      where: { organizerId: userId, deletedAt: null },
-      orderBy: { createdAt: "desc" },
-    });
-  }
+  async getOrganizerEvents(userId: string, page = 1, limit = 10) {
+  const parsedPage = Number(page) || 1;
+  const parsedLimit = Number(limit) || 10;
+
+  const events = await this.prisma.event.findMany({
+    where: { organizerId: userId, deletedAt: null },
+    skip: (parsedPage - 1) * parsedLimit,
+    take: parsedLimit,
+    orderBy: { createdAt: "desc" },
+    select: {
+      id: true,
+      title: true,
+      category: true,
+      location: true,
+      startDate: true,
+      endDate: true,
+      price: true,
+      isPaid: true,
+      bannerUrl: true,
+    },
+  });
+
+  const total = await this.prisma.event.count({
+    where: { organizerId: userId, deletedAt: null },
+  });
+
+  return {
+    events,
+    pagination: {
+      page: parsedPage,
+      limit: parsedLimit,
+      totalPages: Math.ceil(total / parsedLimit),
+    },
+  };
+}
+
 
   async getEventDetail(eventId: string) {
-    const event = await this.prisma.event.findUnique({
-      where: { id: eventId, deletedAt: null },
-      include: {
-        organizer: { select: { id: true, name: true, email: true } },
-        organizerProfile: { select: { rating: true } },
-        ticketTypes: true,
-        reviews: {
-          include: { user: { select: { id: true, name: true } } },
-          take: 3,
-          orderBy: { createdAt: "desc" },
+  const event = await this.prisma.event.findFirst({
+    where: {
+      id: eventId,
+      deletedAt: null,
+    },
+    select: {
+      id: true,
+      title: true,
+      description: true,
+      category: true,
+      location: true,
+      startDate: true,
+      endDate: true,
+      totalSeats: true,
+      availableSeats: true,
+      price: true,
+      isPaid: true,
+      bannerUrl: true, // 🚀 IMPORTANT FIX!
+      createdAt: true,
+      organizer: { select: { id: true, name: true, email: true } },
+      organizerProfile: { select: { rating: true } },
+      ticketTypes: {
+        select: {
+          id: true,
+          name: true,
+          price: true,
+          stock: true,
         },
-        _count: { select: { reviews: true } }
-      }
-    });
+      },
+      reviews: {
+        select: {
+          id: true,
+          rating: true,
+          comment: true,
+          createdAt: true,
+          user: { select: { id: true, name: true } },
+        },
+        take: 3,
+        orderBy: { createdAt: "desc" },
+      },
+      _count: { select: { reviews: true } },
+    },
+  });
 
-    if (!event) throw new AppError("Event not found", 404);
+  if (!event) throw new AppError("Event not found", 404);
 
-    const avgRating = event._count.reviews
-      ? event.reviews.reduce((acc, r) => acc + r.rating, 0) / event._count.reviews
+  const avgRating =
+    event._count.reviews > 0
+      ? event.reviews.reduce((acc, r) => acc + r.rating, 0) /
+        event._count.reviews
       : 0;
 
-    return {
-      ...event,
-      avgRating: Math.round(avgRating * 10) / 10,
-    };
+  return {
+    ...event,
+    avgRating: Math.round(avgRating * 10) / 10,
+  };
+}
+
+
+
+ async updateEvent(eventId: string, organizerId: string, data: UpdateEventDTO) {
+  const event = await this.prisma.event.findUnique({
+    where: { id: eventId }
+  });
+
+  if (!event) throw new AppError("Event not found", 404);
+  if (event.organizerId !== organizerId)
+    throw new AppError("Forbidden - you are not the organizer", 403);
+
+  const updatedData: any = {};
+
+  if (data.title !== undefined) updatedData.title = data.title;
+  if (data.description !== undefined) updatedData.description = data.description;
+  if (data.category !== undefined) updatedData.category = data.category;
+  if (data.location !== undefined) updatedData.location = data.location;
+
+  if (data.startDate) {
+    updatedData.startDate = new Date(data.startDate);
+  }
+  if (data.endDate) {
+    updatedData.endDate = new Date(data.endDate);
   }
 
-  async updateEvent(eventId: string, organizerId: string, data: UpdateEventDTO) {
-    const event = await this.prisma.event.findUnique({ where: { id: eventId } });
-    if (!event) throw new AppError("Event not found", 404);
-    if (event.organizerId !== organizerId)
-      throw new AppError("Forbidden - you are not the organizer", 403);
-
-    return await this.prisma.event.update({
-      where: { id: eventId },
-      data,
-    });
+  if (typeof data.price === "number") {
+    updatedData.price = data.price;
   }
+
+  if (typeof data.isPaid === "boolean") {
+    updatedData.isPaid = data.isPaid;
+  }
+
+  if (typeof data.totalSeats === "number") {
+    updatedData.totalSeats = data.totalSeats;
+
+    // Adjust available seats if totalSeats changes
+    const seatDiff = data.totalSeats - event.totalSeats;
+    updatedData.availableSeats = event.availableSeats + seatDiff;
+  }
+
+  if (data.bannerUrl !== undefined) {
+    updatedData.bannerUrl = data.bannerUrl;
+  }
+
+  const result = await this.prisma.event.update({
+    where: { id: eventId },
+    data: updatedData,
+  });
+
+  return result;
+}
+
 
   async deleteEvent(eventId: string, organizerId: string) {
     const event = await this.prisma.event.findUnique({ where: { id: eventId } });
@@ -199,20 +304,31 @@ export class EventService extends BaseService {
       skip: (parsedPage - 1) * parsedLimit,
       take: parsedLimit,
       orderBy: sortOptions[sort] || sortOptions.latest,
-      include: {
-        organizerProfile: { select: { rating: true } },
+      select: {
+        id: true,
+        title: true,
+        category: true,
+        location: true,
+        startDate: true,
+        endDate: true,
+        price: true,
+        isPaid: true,
+        bannerUrl: true,
+        organizerProfile: {
+          select: { rating: true }
+        },
         reviews: true,
-      },
+      }
     });
 
     const total = await this.prisma.event.count({ where });
 
     return {
       events,
-     pagination: {
-    page: parsedPage,
-    limit: parsedLimit,
-    totalPages: Math.ceil(total / parsedLimit),
+      pagination: {
+        page: parsedPage,
+        limit: parsedLimit,
+        totalPages: Math.ceil(total / parsedLimit),
       },
     };
   }

@@ -18,7 +18,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 const navItems = [
-  { href: "/", label: "Discover" },
+  { href: "/", label: "Discover Events" },
   // Nanti bisa nambah
 ];
 
@@ -59,7 +59,7 @@ export function SiteHeader() {
     <header className="sticky top-0 z-40 border-b border-slate-200 bg-white/80 backdrop-blur">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6 lg:px-8">
         <Link href="/" className="flex items-center gap-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-tr from-indigo-600 via-sky-500 to-indigo-400 text-xs font-bold text-white shadow-md">
+          <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-linear-to-tr from-indigo-600 via-sky-500 to-indigo-400 text-xs font-bold text-white shadow-md">
             EH
           </div>
           <span className="text-lg font-semibold tracking-tight">
@@ -74,11 +74,10 @@ export function SiteHeader() {
               <Link
                 key={item.href}
                 href={item.href}
-                className={`rounded-full px-3 py-1 ${
-                  isActive
+                className={`rounded-full px-3 py-1 ${isActive
                     ? "bg-indigo-50 text-indigo-600"
                     : "hover:bg-slate-100"
-                }`}
+                  }`}
               >
                 {item.label}
               </Link>
@@ -87,19 +86,10 @@ export function SiteHeader() {
         </nav>
 
         <div className="flex items-center gap-3">
-          <Button
-            variant="outline"
-            size="sm"
-            className="hidden rounded-full border-slate-200 text-xs font-medium text-slate-700 hover:border-indigo-200 hover:bg-indigo-50 hover:text-indigo-700 sm:inline-flex"
-            onClick={handleCreateEventClick}
-          >
-            Create Event
-          </Button>
-
           {!isAuthenticated ? (
             <Button
               size="sm"
-              className="rounded-full bg-gradient-to-r from-indigo-600 to-sky-500 text-xs font-semibold text-white shadow-sm hover:from-indigo-700 hover:to-sky-600"
+              className="rounded-full bg-linear-to-r from-indigo-600 to-sky-500 text-xs font-semibold text-white shadow-sm hover:from-indigo-700 hover:to-sky-600"
               onClick={handleLoginClick}
             >
               Login
@@ -122,6 +112,7 @@ export function SiteHeader() {
                   </span>
                 </button>
               </DropdownMenuTrigger>
+
               <DropdownMenuContent align="end" className="w-44 text-xs">
                 <DropdownMenuLabel className="text-[11px]">
                   Signed in as
@@ -130,18 +121,44 @@ export function SiteHeader() {
                     {user?.email}
                   </span>
                 </DropdownMenuLabel>
+
                 <DropdownMenuSeparator />
-                <DropdownMenuItem asChild>
-                  <Link href="/my-tickets">My Tickets</Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link href="/my-transactions">My Transactions</Link>
-                </DropdownMenuItem>
+
+                {/* Organizer Menu */}
+                {user?.role === "ORGANIZER" && (
+                  <>
+                    <DropdownMenuItem asChild>
+                      <Link href="/dashboard">Dashboard</Link>
+                    </DropdownMenuItem>
+                  </>
+                )}
+
+                {/* Normal User Menu */}
+                {user?.role === "USER" && (
+                  <>
+                    <DropdownMenuItem asChild>
+                      <Link href="/profile">Profile</Link>
+                    </DropdownMenuItem>
+
+                    <DropdownMenuItem asChild>
+                      <Link href="/my-tickets">My Tickets</Link>
+                    </DropdownMenuItem>
+
+                    <DropdownMenuItem asChild>
+                      <Link href="/my-transactions">My Transactions</Link>
+                    </DropdownMenuItem>
+                  </>
+                )}
+
                 <DropdownMenuSeparator />
+
                 <DropdownMenuItem onClick={handleLogout}>
                   Logout
                 </DropdownMenuItem>
               </DropdownMenuContent>
+
+
+
             </DropdownMenu>
           )}
         </div>

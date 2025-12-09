@@ -2,49 +2,66 @@
 
 import { useState } from "react";
 
-export type SortOption = "latest" | "oldest" | "price_asc" | "price_desc";
+export type SortOption =
+  | "latest"
+  | "oldest"
+  | "price_asc"
+  | "price_desc";
 
 export interface DiscoverFiltersState {
   search: string;
-  category: string | null;
-  location: string;
+  category?: string;  // ⬅️ undefined only
+  location?: string;  // ⬅️ undefined only
   sort: SortOption;
 }
 
-export function useDiscoverFilters(initial?: Partial<DiscoverFiltersState>) {
+const defaultState: DiscoverFiltersState = {
+  search: "",
+  category: undefined,
+  location: undefined,
+  sort: "latest",
+};
+
+export function useDiscoverFilters(
+  initial: Partial<DiscoverFiltersState> = {}
+) {
   const [filters, setFilters] = useState<DiscoverFiltersState>({
-    search: initial?.search ?? "",
-    category: initial?.category ?? null,
-    location: initial?.location ?? "",
-    sort: initial?.sort ?? "latest",
+    ...defaultState,
+    ...initial,
   });
 
-  const setSearch = (value: string) =>
-    setFilters((prev) => ({ ...prev, search: value }));
+  const setSearch = (search: string) =>
+    setFilters((prev) => ({ ...prev, search }));
 
-  const setCategory = (value: string | null) =>
-    setFilters((prev) => ({ ...prev, category: value }));
+  const setCategory = (category?: string) =>
+    setFilters((prev) => ({
+      ...prev,
+      category: category || undefined,
+    }));
 
-  const setLocation = (value: string) =>
-    setFilters((prev) => ({ ...prev, location: value }));
+  const setLocation = (location?: string) =>
+    setFilters((prev) => ({
+      ...prev,
+      location: location || undefined,
+    }));
 
-  const setSort = (value: SortOption) =>
-    setFilters((prev) => ({ ...prev, sort: value }));
+  const setSort = (sort: SortOption) =>
+    setFilters((prev) => ({ ...prev, sort }));
 
-  const resetFilters = () =>
-    setFilters({
-      search: "",
-      category: null,
-      location: "",
-      sort: "latest",
-    });
+  const setAll = (updates: Partial<DiscoverFiltersState>) =>
+    setFilters((prev) => ({
+      ...prev,
+      ...updates,
+      category: updates.category || undefined,
+      location: updates.location || undefined,
+    }));
 
   return {
     filters,
+    setFilters: setAll,
     setSearch,
     setCategory,
     setLocation,
     setSort,
-    resetFilters,
   };
 }

@@ -4,83 +4,87 @@ import { AppError } from "../../utils/app-error";
 export class DashboardService extends BaseService {
 
   async getOrganizerDashboard(organizerId: string) {
+  let profile = await this.prisma.organizerProfile.findUnique({
+    where: { userId: organizerId },
+    select: { rating: true }
+  });
 
-    // Organizer harus ada profile rating
-    const profile = await this.prisma.organizerProfile.findUnique({
-      where: { userId: organizerId },
-      select: { rating: true }
+  if (!profile) {
+    profile = await this.prisma.organizerProfile.create({
+      data: { userId: organizerId, rating: 0 }
     });
+  }
 
-    if (!profile) throw new AppError("Organizer profile not found", 404);
-
-    const totalEvents = await this.prisma.event.count({
-      where: { organizerId, deletedAt: null }
-    });
-
-    const revenueData = await this.prisma.transaction.aggregate({
-      where: {
-        items: { some: { event: { organizerId } } },
-        status: "DONE"
-      },
-      _sum: { totalAmount: true }
-    });
-
-    const totalRevenue = revenueData._sum.totalAmount ?? 0;
-
-    const attendeesData = await this.prisma.transactionItem.aggregate({
-      where: {
-        event: { organizerId },
-        transaction: { status: "DONE" }
-      },
-      _sum: { quantity: true }
-    });
-
-    const totalAttendees = attendeesData._sum.quantity ?? 0;
-
-    const topEvents = await this.prisma.transactionItem.groupBy({
-      by: ["eventId"],
-      _sum: { quantity: true },
-      where: {
-        transaction: { status: "DONE" },
-        event: { organizerId }
-      }
-    });
-
-    const formattedTopEvents = await Promise.all(
-      topEvents.map(async (e) => {
-        const event = await this.prisma.event.findUnique({
-          where: { id: e.eventId },
-          select: { title: true }
-        });
-
-        return {
-          eventId: e.eventId,
-          title: event?.title ?? "Unknown Event",
-          ticketsSold: e._sum.quantity || 0
-        };
-      })
-    );
-    
-    const last30DaysTrend = await this.prisma.$queryRaw<
+  const [summary, topEvents, salesTrend] = await Promise.all([
+    this.prisma.$queryRaw<
+      { totalEvents: bigint; totalRevenue: bigint; totalAttendees: bigint }[]
+    >`
+      SELECT
+        (SELECT COUNT(*) FROM "Event"
+          WHERE "organizerId" = ${organizerId}
+          AND "deletedAt" IS NULL) AS "totalEvents",
+        (SELECT COALESCE(SUM(t."totalAmount"), 0)
+          FROM "Transaction" t
+          JOIN "TransactionItem" ti ON t.id = ti."transactionId"
+          JOIN "Event" e ON ti."eventId" = e.id
+          WHERE t."status" = 'DONE' AND e."organizerId" = ${organizerId}) AS "totalRevenue",
+        (SELECT COALESCE(SUM(ti."quantity"), 0)
+          FROM "TransactionItem" ti
+          JOIN "Event" e ON ti."eventId" = e.id
+          JOIN "Transaction" t ON ti."transactionId" = t.id
+          WHERE t."status" = 'DONE' AND e."organizerId" = ${organizerId}) AS "totalAttendees"
+    `,
+    this.prisma.$queryRaw<
+      { eventId: string; title: string; ticketsSold: number }[]
+    >`
+      SELECT
+        e.id AS "eventId",
+        e.title,
+        COALESCE(SUM(ti.quantity), 0) AS "ticketsSold"
+      FROM "Event" e
+      LEFT JOIN "TransactionItem" ti ON e.id = ti."eventId"
+      LEFT JOIN "Transaction" t ON ti."transactionId" = t.id
+      WHERE e."organizerId" = ${organizerId}
+      AND t."status" = 'DONE'
+      GROUP BY e.id
+      ORDER BY "ticketsSold" DESC
+      LIMIT 5
+    `,
+    this.prisma.$queryRaw<
       { date: string; revenue: number }[]
     >`
-      SELECT 
-        DATE("createdAt") as date,
-        SUM("totalAmount") as revenue
-      FROM "Transaction"
-      WHERE "status" = 'DONE'
-      AND "createdAt" >= NOW() - INTERVAL '30 days'
-      GROUP BY DATE("createdAt")
-      ORDER BY DATE("createdAt")
-    `;
+      SELECT DATE(t."createdAt") as date,
+             COALESCE(SUM(t."totalAmount"), 0) as revenue
+      FROM "Transaction" t
+      JOIN "TransactionItem" ti ON t.id = ti."transactionId"
+      JOIN "Event" e ON ti."eventId" = e.id
+      WHERE t."status" = 'DONE'
+      AND e."organizerId" = ${organizerId}
+      AND t."createdAt" >= NOW() - INTERVAL '30 days'
+      GROUP BY DATE(t."createdAt")
+      ORDER BY DATE(t."createdAt")
+    `,
+  ]);
 
-    return {
-      totalEvents,
-      totalRevenue,
-      totalAttendees,
-      avgRating: profile.rating,
-      topEvents,
-      salesTrend: last30DaysTrend
-    };
-  }
+  const s = summary[0] || {
+    totalEvents: 0n,
+    totalRevenue: 0n,
+    totalAttendees: 0n,
+  };
+
+  return {
+    totalEvents: Number(s.totalEvents),
+    totalRevenue: Number(s.totalRevenue),
+    totalAttendees: Number(s.totalAttendees),
+    avgRating: Number(profile.rating),
+    topEvents: topEvents.map(e => ({
+      ...e,
+      ticketsSold: Number(e.ticketsSold)
+    })),
+    salesTrend: salesTrend.map(d => ({
+      date: d.date,
+      revenue: Number(d.revenue)
+    }))
+  };
+}
 }

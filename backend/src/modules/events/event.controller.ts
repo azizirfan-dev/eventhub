@@ -41,9 +41,15 @@ export class EventController extends BaseController {
 };
 
   getMyEvents = async (req: Request, res: Response, next: NextFunction) => {
-    const result = await this.eventService.getOrganizerEvents(req.user!.id);
-    return this.sendSuccess(res, result, "My events loaded");
-  };
+  const { page = 1, limit = 10 } = req.query;
+  const result = await this.eventService.getOrganizerEvents(
+    req.user!.id,
+    Number(page),
+    Number(limit)
+  );
+  return this.sendSuccess(res, result, "My events loaded");
+};
+
 
   getEventDetail = async (req: Request, res: Response, next: NextFunction) => {
     const { id: eventId } = req.params;

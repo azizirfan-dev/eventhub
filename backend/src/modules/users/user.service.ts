@@ -17,11 +17,11 @@ export class UserService extends BaseService {
     }
 
     async updateProfile(userId: string, data: any) {
-        const { name, email } = data;
+        const { name, email, avatarUrl } = data;
 
         const updated = await this.prisma.user.update({
             where: { id: userId },
-            data: { name, email },
+            data: { name, email, avatarUrl },
         });
 
         return updated;
