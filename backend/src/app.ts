@@ -11,7 +11,11 @@ import reviewRoutes from "./modules/reviews/review.route";
 import dashboardRoutes from "./modules/dashboard/dashboard.route";
 import { errorHandler } from "./middlewares/error.middleware";
 import { initTransactionJobs } from "./jobs/transaction.jobs";
-import promoRoutes from "./modules/promos/promo.route"
+import promoRoutes from "./modules/promo/promo.route"
+import "./jobs/cron";
+import "./jobs/promo.jobs";
+import rewardRoutes from "./modules/rewards/reward.route"
+
 
 const app = express();
 
@@ -35,6 +39,8 @@ app.use("/transactions", transactionRoutes);
 app.use("/reviews", reviewRoutes);
 app.use("/dashboard", dashboardRoutes);
 app.use("/promo", promoRoutes)
+app.use("/rewards", rewardRoutes);
+
 
 // Error Handler
 app.use(errorHandler);

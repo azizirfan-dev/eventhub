@@ -13,7 +13,7 @@ import { SearchBar } from "@/components/home/search-bar";
 import { SortDropdown } from "@/components/home/sort-dropdown";
 import { EventGridInfinite } from "@/components/home/event-grid-infinite";
 import { DiscoverFiltersInput } from "@/hooks/useDiscoverEventsInfinite";
-
+import { LocationFilter } from "./location-filter";
 export default function HomeClient({
   initialEvents = [],
   initialFilters = {},
@@ -81,7 +81,10 @@ export default function HomeClient({
     <div className="flex flex-col">
       <HeroSection filtersHook={filtersHook} />
 
+      
       <CategoryFilter filtersHook={{ filters, setFilters }} />
+      <LocationFilter filtersHook={{ filters, setFilters }} />
+
 
       <div className="mx-auto flex w-full max-w-6xl flex-col gap-3 px-4 sm:flex-row sm:items-center sm:justify-between">
         <SearchBar value={filters.search} onSearchDebouncedChange={setSearchInput} />

@@ -31,8 +31,10 @@ model User {
   transactions     Transaction[]
   referredBy       User?             @relation("UserReferrals", fields: [referredById], references: [id])
   referrals        User[]            @relation("UserReferrals")
+  rewardClaims     RewardClaim[]
 
-  promos Promo[] @relation("OrganizerPromos")
+  promos       Promo[] @relation("OrganizerPromos")
+  lockedPromos Promo[] @relation("UserLockedReferralPromo")
 }
 
 model OrganizerProfile {
@@ -101,6 +103,9 @@ model Promo {
   eventId     String?
   organizerId String?
 
+  lockedToUserId String?
+  userLocked     User?   @relation("UserLockedReferralPromo", fields: [lockedToUserId], references: [id])
+
   startDate DateTime
   endDate   DateTime
 
@@ -111,9 +116,10 @@ model Promo {
   updatedAt DateTime  @updatedAt
   deletedAt DateTime?
 
-  event        Event?        @relation(fields: [eventId], references: [id])
-  organizer    User?         @relation("OrganizerPromos", fields: [organizerId], references: [id])
-  transactions Transaction[]
+  event     Event? @relation(fields: [eventId], references: [id])
+  organizer User?  @relation("OrganizerPromos", fields: [organizerId], references: [id])
+
+  transactions Transaction[] @relation("PromoUsed")
 }
 
 model Transaction {
@@ -131,7 +137,8 @@ model Transaction {
   paymentProof PaymentProof[]
   user         User              @relation(fields: [userId], references: [id])
   items        TransactionItem[]
-  promo        Promo?            @relation(fields: [usedPromoId], references: [id])
+
+  promo Promo? @relation("PromoUsed", fields: [usedPromoId], references: [id])
 }
 
 model TransactionItem {
@@ -195,6 +202,26 @@ model PointHistory {
 
   @@index([userId])
   @@index([expiresAt])
+}
+
+model Reward {
+  id           String        @id @default(cuid())
+  name         String
+  points       Int
+  stock        Int           @default(0)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  rewardClaims RewardClaim[]
+}
+
+model RewardClaim {
+  id        String   @id @default(cuid())
+  userId    String
+  rewardId  String
+  createdAt DateTime @default(now())
+
+  user   User   @relation(fields: [userId], references: [id])
+  reward Reward @relation(fields: [rewardId], references: [id])
 }
 
 model Log {

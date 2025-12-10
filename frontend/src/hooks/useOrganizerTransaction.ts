@@ -10,18 +10,16 @@ export type TrxStatus =
     | "CANCELED";
 
 export function useOrganizerTransactions(status: TrxStatus) {
-    return useQuery({
-        queryKey: ["transactions", status],
-        queryFn: async () => {
-            const res = await api.get("/transactions/pending", {
-                params: { status },
-            });
-            return res.data.data ?? [];
-        },
-        staleTime: 60_000, // 1 menit cached, langsung muncul tanpa loading
-        refetchOnWindowFocus: false,
-    });
+  return useQuery({
+    queryKey: ["transactions", status],
+    queryFn: async () => {
+      const res = await api.get("/transactions/pending");
+      return res.data.data ?? [];
+    },
+    staleTime: 10_000,
+  });
 }
+
 
 export function useTransactionAction() {
     const queryClient = useQueryClient();

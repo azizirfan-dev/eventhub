@@ -42,12 +42,21 @@ export class TransactionController extends BaseController {
 
   getPendingTransactions = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const data = await this.transactionService.getPendingTransactions();
-    return this.sendSuccess(res, data, "Success");
+    const organizerId = req.user!.id;
+    const { page = 1, limit = 10 } = req.query;
+
+    const data = await this.transactionService.getPendingTransactions(
+      organizerId,
+      Number(page),
+      Number(limit)
+    );
+
+    return this.sendSuccess(res, data, "Pending transactions loaded");
   } catch (error) {
     next(error);
   }
 };
+
 
 getTransactionDetail = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -83,6 +92,7 @@ getTransactionDetail = async (req: Request, res: Response, next: NextFunction) =
   };
 
   applyPromo = async (req: Request, res: Response) => {
-    return this.sendSuccess(res, { promo: req.promo }, "Promo applied");
-  };
+  return this.sendSuccess(res, req.promo, "Promo applied");
+};
+
 }

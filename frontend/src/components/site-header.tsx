@@ -17,10 +17,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
-const navItems = [
-  { href: "/", label: "Discover Events" },
-  // Nanti bisa nambah
-];
+const navItems = [{ href: "/", label: "Discover Events" }];
 
 export function SiteHeader() {
   const pathname = usePathname();
@@ -30,6 +27,11 @@ export function SiteHeader() {
   const user = useAuthStore((s) => s.user);
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
 
+  const rawRole = user?.role?.toString()?.trim()?.toUpperCase() || "";
+  const isOrganizer = rawRole === "ORGANIZER";
+  const isUser = rawRole === "USER" || rawRole === "CUSTOMER"; // 🔥 Accept both
+
+
   const initials =
     user?.name
       ?.split(" ")
@@ -38,35 +40,18 @@ export function SiteHeader() {
       .slice(0, 2)
       .toUpperCase() || "EH";
 
-  const handleLoginClick = () => {
-    open("login");
-  };
-
-  const handleCreateEventClick = () => {
-    if (!isAuthenticated) {
-      open("login");
-      return;
-    }
-    // nanti diarahkan ke /organizer/events/new atau semacam itu
-    alert("Create Event flow will be implemented later.");
-  };
-
-  const handleLogout = () => {
-    logout();
-  };
-
   return (
     <header className="sticky top-0 z-40 border-b border-slate-200 bg-white/80 backdrop-blur">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6 lg:px-8">
+        {/* Logo */}
         <Link href="/" className="flex items-center gap-2">
           <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-linear-to-tr from-indigo-600 via-sky-500 to-indigo-400 text-xs font-bold text-white shadow-md">
             EH
           </div>
-          <span className="text-lg font-semibold tracking-tight">
-            EventHub
-          </span>
+          <span className="text-lg font-semibold tracking-tight">EventHub</span>
         </Link>
 
+        {/* Navigation (Desktop Only) */}
         <nav className="hidden items-center gap-4 text-sm font-medium text-slate-600 sm:flex">
           {navItems.map((item) => {
             const isActive = pathname === item.href;
@@ -85,12 +70,13 @@ export function SiteHeader() {
           })}
         </nav>
 
+        {/* Auth Section */}
         <div className="flex items-center gap-3">
           {!isAuthenticated ? (
             <Button
               size="sm"
               className="rounded-full bg-linear-to-r from-indigo-600 to-sky-500 text-xs font-semibold text-white shadow-sm hover:from-indigo-700 hover:to-sky-600"
-              onClick={handleLoginClick}
+              onClick={() => open("login")}
             >
               Login
             </Button>
@@ -99,10 +85,7 @@ export function SiteHeader() {
               <DropdownMenuTrigger asChild>
                 <button className="flex items-center gap-2 rounded-full border border-slate-200 bg-white px-2 py-1 text-xs shadow-sm hover:border-indigo-200 hover:bg-indigo-50">
                   <Avatar className="h-7 w-7">
-                    <AvatarImage
-                      src={undefined} // nanti bisa diganti photo user
-                      alt={user?.name ?? "User avatar"}
-                    />
+                    <AvatarImage src={undefined} alt={user?.name ?? "User"} />
                     <AvatarFallback className="bg-indigo-600 text-[11px] font-semibold text-white">
                       {initials}
                     </AvatarFallback>
@@ -124,17 +107,15 @@ export function SiteHeader() {
 
                 <DropdownMenuSeparator />
 
-                {/* Organizer Menu */}
-                {user?.role === "ORGANIZER" && (
-                  <>
-                    <DropdownMenuItem asChild>
-                      <Link href="/dashboard">Dashboard</Link>
-                    </DropdownMenuItem>
-                  </>
+                {/* Organizer Section */}
+                {isOrganizer && (
+                  <DropdownMenuItem asChild>
+                    <Link href="/dashboard">Dashboard</Link>
+                  </DropdownMenuItem>
                 )}
 
-                {/* Normal User Menu */}
-                {user?.role === "USER" && (
+                {/* Customer Section */}
+                {isUser && (
                   <>
                     <DropdownMenuItem asChild>
                       <Link href="/profile">Profile</Link>
@@ -152,13 +133,10 @@ export function SiteHeader() {
 
                 <DropdownMenuSeparator />
 
-                <DropdownMenuItem onClick={handleLogout}>
+                <DropdownMenuItem onClick={() => logout()}>
                   Logout
                 </DropdownMenuItem>
               </DropdownMenuContent>
-
-
-
             </DropdownMenu>
           )}
         </div>

@@ -21,7 +21,7 @@ export interface DiscoverFiltersInput {
   limit?: number;
 }
 
-interface DiscoverEvent {
+export interface DiscoverEvent {
   id: string;
   title: string;
   location: string | null;
@@ -33,7 +33,7 @@ interface DiscoverEvent {
   organizerProfile?: { rating: number | null };
 }
 
-interface DiscoverEventsApiResponse {
+export interface DiscoverEventsApiResponse {
   status: string;
   message: string;
   data: {

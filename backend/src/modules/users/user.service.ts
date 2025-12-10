@@ -1,5 +1,6 @@
 import { BaseService } from "../../core/base.service";
 import { hashPassword, comparePassword } from "../../utils/password";
+import cloudinary, {uploadToCloudinary} from "../../utils/cloudinary";
 
 export class UserService extends BaseService {
 
@@ -62,5 +63,18 @@ export class UserService extends BaseService {
             pointHistory: user.pointHistories,
         };
     }
+
+    async updateAvatar(userId: string, filePath: string) {
+    const upload = await cloudinary.uploader.upload(filePath, {
+      folder: "eventhub",
+    });
+
+    const update = await this.prisma.user.update({
+      where: { id: userId },
+      data: { avatarUrl: upload.secure_url },
+    });
+
+    return update;
+  }
 }
 

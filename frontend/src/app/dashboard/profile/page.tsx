@@ -5,7 +5,7 @@ import { useAuthStore } from "@/store/auth";
 import { useProfile, useUpdateProfile } from "@/hooks/useProfile";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { ChangePasswordDialog } from "@/components/profile/change-password-dialog";
+import { ChangePasswordDialog } from "@/components/profile/sections/change-password-dialog";
 import { useCloudinaryUpload } from "@/hooks/useCloudinaryUpload";
 
 export default function ProfilePage() {

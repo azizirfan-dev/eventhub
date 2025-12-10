@@ -34,13 +34,7 @@ export class UserController extends BaseController {
     try {
       const userId = req.user?.id!;
       const { oldPass, newPass } = req.body;
-
-      const result = await this.userService.updatePassword(
-        userId,
-        oldPass,
-        newPass
-      );
-
+      const result = await this.userService.updatePassword(userId, oldPass, newPass);
       return this.sendSuccess(res, result, "Password updated");
     } catch (error) {
       return this.sendError(res, error);
@@ -52,6 +46,23 @@ export class UserController extends BaseController {
       const userId = req.user?.id!;
       const result = await this.userService.getReferralStats(userId);
       return this.sendSuccess(res, result, "Referral stats loaded");
+    } catch (error) {
+      return this.sendError(res, error);
+    }
+  };
+
+  /** ⬇️ NEW: Update Avatar */
+  updateAvatar = async (req: Request, res: Response) => {
+    try {
+      const userId = req.user?.id!;
+      const file = req.file;
+
+      if (!file) {
+        return this.sendError(res, "No file uploaded", 400);
+      }
+
+      const result = await this.userService.updateAvatar(userId, file.path);
+      return this.sendSuccess(res, result, "Avatar updated");
     } catch (error) {
       return this.sendError(res, error);
     }

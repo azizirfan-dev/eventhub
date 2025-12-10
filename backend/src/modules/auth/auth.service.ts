@@ -9,80 +9,88 @@ import { RegisterDTO, LoginDTO, ForgotPasswordDTO, VerifyOtpDTO, ResetPasswordDT
 
 export class AuthService extends BaseService {
   async register(data: RegisterDTO) {
-    const { email, password, name, referralCode } = data;
+  const { email, password, name, referralCode } = data;
 
-    if (!email || !password || !name) {
-      throw new AppError("Missing required fields", 400);
-    }
+  if (!email || !password || !name) {
+    throw new AppError("Missing required fields", 400);
+  }
 
-    const exist = await this.prisma.user.findUnique({ where: { email } });
-    if (exist) throw new AppError("Email already registered", 409);
+  const exist = await this.prisma.user.findUnique({ where: { email } });
+  if (exist) throw new AppError("Email already registered", 409);
 
-    const hashedPassword = await hashPassword(password);
-    const newReferralCode = generateReferralCode(name);
+  const hashedPassword = await hashPassword(password);
+  const newReferralCode = generateReferralCode(name);
 
-    // === REFERRAL LOGIC ===
-    let referredByUserId: string | undefined = undefined;
-    let newUserPromo: any = null;
+  // === CREATE NEW USER FIRST ===
+  const user = await this.prisma.user.create({
+    data: {
+      email,
+      name,
+      password: hashedPassword,
+      referralCode: newReferralCode,
+    },
+  });
 
-    if (referralCode) {
-      const refUser = await this.prisma.user.findUnique({
-        where: { referralCode },
-      });
-      if (!refUser) throw new AppError("Invalid referral code", 400);
+  // === REFERRAL: After user created ===
+  if (referralCode) {
+    const referrer = await this.prisma.user.findUnique({
+      where: { referralCode },
+    });
 
-      referredByUserId = refUser.id;
+    if (!referrer) throw new AppError("Invalid referral code", 400);
 
-      // Add points to referrer + expiry 3 months
-      await this.prisma.pointHistory.create({
-        data: {
-          userId: refUser.id,
-          amount: 10000,
-          reason: "Referral reward",
-          expiresAt: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000),
-        },
-      });
-    }
+    // Link referral relationship
+    await this.prisma.user.update({
+      where: { id: user.id },
+      data: { referredById: referrer.id },
+    });
 
-    // === CREATE NEW USER ===
-    const user = await this.prisma.user.create({
+    const expiry = new Date();
+    expiry.setMonth(expiry.getMonth() + 3);
+
+    // 💰 10k points to referrer (with expiry)
+    await this.prisma.user.update({
+      where: { id: referrer.id },
+      data: { points: { increment: 10000 } },
+    });
+
+    await this.prisma.pointHistory.create({
       data: {
-        email,
-        name,
-        password: hashedPassword,
-        referralCode: newReferralCode,
-        referredById: referredByUserId,
+        userId: referrer.id,
+        amount: 10000,
+        reason: "Referral reward",
+        expiresAt: expiry,
       },
     });
 
-    // === GIVE NEW USER PROMO (EXP 3 MONTHS) ===
-    // newUserPromo = await this.prisma.promo.create({
-    //   data: {
-    //     code: `REF-${newReferralCode}`,
-    //     discount: 20000, // editable
-    //     isPercent: false,
-    //     usageLimit: 1, // cuma sekali dipakai
-    //     startDate: new Date(),
-    //     endDate: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000),
-    //     organizerId: user.id, // owner promo = user sendiri
-    //     eventId: "GLOBAL", // nanti dipakai di FE untuk semua event
-    //   },
-    // });
-
-    // === GEN TOKEN ===
-    const token = generateToken({
-      id: user.id,
-      email: user.email,
-      role: user.role,
+    // 🎟 Referral Promo for NEW USER
+    await this.prisma.promo.create({
+      data: {
+        code: `REF-${Date.now()}`,
+        discount: 50000,
+        isPercent: false,
+        isGlobal: true,
+        startDate: new Date(),
+        endDate: expiry,
+        lockedToUserId: user.id,
+      },
     });
-
-    return {
-      message: "Register success",
-      user,
-      promo: newUserPromo,
-      token,
-    };
   }
+
+  // === TOKEN ===
+  const token = generateToken({
+    id: user.id,
+    email: user.email,
+    role: user.role,
+  });
+
+  return {
+    message: "Register success",
+    user,
+    token,
+  };
+}
+
   async login(data: LoginDTO) {
     const { email, password } = data;
 

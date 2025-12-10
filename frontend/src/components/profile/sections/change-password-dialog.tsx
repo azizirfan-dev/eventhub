@@ -1,3 +1,4 @@
+// src/components/profile/sections/change-password-modal.tsx
 "use client";
 
 import { useState } from "react";
@@ -6,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useUpdatePassword } from "@/hooks/useProfile";
 
-export function ChangePasswordDialog() {
+export default function ChangePasswordModal() {
   const [oldPass, setOldPass] = useState("");
   const [newPass, setNewPass] = useState("");
 
@@ -29,12 +30,17 @@ export function ChangePasswordDialog() {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="outline">Change Password</Button>
+        <Button
+          variant="outline"
+          className="text-xs rounded-full"
+        >
+          Change Password
+        </Button>
       </DialogTrigger>
 
       <DialogContent className="space-y-4">
         <DialogHeader>
-          <DialogTitle>Change Password</DialogTitle>
+          <DialogTitle className="text-sm">Change Password</DialogTitle>
         </DialogHeader>
 
         <Input
@@ -50,8 +56,12 @@ export function ChangePasswordDialog() {
           onChange={(e) => setNewPass(e.target.value)}
         />
 
-        <Button onClick={handleSubmit} disabled={mutation.isPending}>
-          Save Changes
+        <Button
+          onClick={handleSubmit}
+          disabled={mutation.isPending}
+          className="w-full bg-indigo-600 text-white"
+        >
+          {mutation.isPending ? "Saving..." : "Save Changes"}
         </Button>
       </DialogContent>
     </Dialog>

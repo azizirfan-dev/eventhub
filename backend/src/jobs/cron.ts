@@ -1,28 +1,31 @@
 import cron from "node-cron";
 import { TransactionService } from "../modules/transactions/transaction.service";
 
-const service = new TransactionService();
+const trxService = new TransactionService();
 
 /**
- * EXPIRE WAITING_PAYMENT (every minute)
- * Logic:
- * - Jika lewat >2 jam & masih WAITING_PAYMENT → EXPIRED
- * - Rollback stock, voucher usage, & points (handled in service)
+ * EXPIRE WAITING_PAYMENT → setiap 5 menit
+ * (supaya gak terlalu spam database)
  */
-export const expireWaitingPayments = cron.schedule("* * * * *", async () => {
-  await service.expireOverdueTransactions();
+cron.schedule("*/5 * * * *", async () => {
+  console.log("[CRON] Running expireOverdueTransactions...");
+  try {
+    await trxService.expireOverdueTransactions();
+  } catch (err) {
+    console.error("Error in expire CRON:", err);
+  }
 });
 
 /**
- * AUTO CANCEL WAITING_ADMIN (hourly check)
- * Logic:
- * - Jika >3 hari belum disetujui oleh organizer → CANCELED
- * - Rollback stock, voucher usage, & points (handled in service)
+ * AUTO CANCEL WAITING_ADMIN → setiap jam
  */
-export const autoCancelPending = cron.schedule("0 * * * *", async () => {
-  await service.autoCancelWaitingAdminTransactions();
+cron.schedule("0 * * * *", async () => {
+  console.log("[CRON] Running autoCancelWaitingAdminTransactions...");
+  try {
+    await trxService.autoCancelWaitingAdminTransactions();
+  } catch (err) {
+    console.error("Error in auto-cancel CRON:", err);
+  }
 });
 
-// Prevent auto execute before server init
-expireWaitingPayments.stop();
-autoCancelPending.stop();
+export {}; // supaya dianggap module

@@ -1,7 +1,7 @@
-// src/components/home/event-card.tsx
-import { DiscoverEvent } from "@/hooks/useDiscoverEvents";
+import { DiscoverEvent } from "@/hooks/useDiscoverEventsInfinite";
 import { format } from "date-fns";
 import Link from "next/link";
+import { Heart } from "lucide-react";
 
 interface EventCardProps {
   event: DiscoverEvent;
@@ -12,14 +12,10 @@ function formatDateRange(startDate: string, endDate: string) {
     const start = new Date(startDate);
     const end = new Date(endDate);
 
-    const sameDay =
-      start.getFullYear() === end.getFullYear() &&
-      start.getMonth() === end.getMonth() &&
-      start.getDate() === end.getDate();
-
-    if (sameDay) {
-      // 2 argumen saja
-      return format(start, "EEEE, d MMM yyyy");
+    if (
+      start.toDateString() === end.toDateString()
+    ) {
+      return format(start, "d MMM yyyy");
     }
 
     return `${format(start, "d MMM")} - ${format(end, "d MMM yyyy")}`;
@@ -33,15 +29,13 @@ export function EventCard({ event }: EventCardProps) {
   const rating = event.organizerProfile?.rating ?? null;
 
   return (
-    <article className="group flex flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-1 hover:border-indigo-200 hover:shadow-md">
+    <article className="group flex flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition-all hover:-translate-y-1 hover:border-indigo-200 hover:shadow-lg">
       <div className="relative h-40 w-full overflow-hidden bg-slate-200">
         {hasBanner ? (
-          // nanti bisa diganti <Image> Next
-          // eslint-disable-next-line @next/next/no-img-element
           <img
             src={event.bannerUrl!}
             alt={event.title}
-            className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
+            className="h-full w-full object-cover transition-all duration-300 group-hover:scale-105"
           />
         ) : (
           <div className="flex h-full w-full items-center justify-center bg-linear-to-tr from-indigo-600 via-sky-500 to-indigo-400 text-xs font-semibold text-white">
@@ -49,6 +43,12 @@ export function EventCard({ event }: EventCardProps) {
           </div>
         )}
 
+        {/* Wishlist button */}
+        <button className="absolute top-2 right-2 rounded-full bg-white/80 p-1 shadow-md opacity-0 transition group-hover:opacity-100">
+          <Heart className="h-4 w-4 text-slate-600 hover:text-red-500 transition" />
+        </button>
+
+        {/* Rating */}
         {rating !== null && (
           <div className="absolute bottom-2 left-2 rounded-full bg-black/60 px-2 py-0.5 text-[11px] font-medium text-amber-300 backdrop-blur">
             ★ {rating.toFixed(1)}
@@ -65,7 +65,7 @@ export function EventCard({ event }: EventCardProps) {
           {event.location || "Location TBA"}
         </p>
 
-        <p className="text-xs font-medium text-slate-700">
+        <p className="text-[11px] font-medium text-indigo-600">
           {formatDateRange(event.startDate, event.endDate)}
         </p>
 
@@ -84,13 +84,13 @@ export function EventCard({ event }: EventCardProps) {
               </span>
             )}
           </div>
+
           <Link
             href={`/events/${event.id}`}
             className="inline-flex items-center rounded-full border border-slate-200 px-3 py-1 text-[11px] font-semibold text-slate-700 transition hover:border-indigo-200 hover:bg-indigo-50 hover:text-indigo-700"
           >
-            View details
+            Detail
           </Link>
-
         </div>
       </div>
     </article>

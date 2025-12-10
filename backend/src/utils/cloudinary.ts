@@ -5,6 +5,9 @@ cloudinary.config({
   api_key: process.env.CLOUDINARY_API_KEY!,
   api_secret: process.env.CLOUDINARY_API_SECRET!
 });
+
+export default cloudinary;
+
 export const uploadToCloudinary = (fileBuffer: Buffer, folder: string): Promise<string> => {
   return new Promise((resolve, reject) => {
     const stream = cloudinary.uploader.upload_stream(

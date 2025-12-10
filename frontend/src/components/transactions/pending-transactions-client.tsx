@@ -16,7 +16,11 @@ export default function PendingTransactionsClient() {
   const [status, setStatus] =
     useState<"WAITING_ADMIN" | "DONE" | "REJECTED" | "CANCELED">("WAITING_ADMIN");
 
-  const { data = [], isLoading } = useOrganizerTransactions(status);
+  const { data, isLoading } = useOrganizerTransactions(status);
+const transactions = data?.data || [];
+console.log("➡️ FE Data:", data);
+
+
   const actionMut = useTransactionAction();
 
   return (
@@ -45,13 +49,13 @@ export default function PendingTransactionsClient() {
             <div key={i} className="h-24 rounded-lg bg-slate-200" />
           ))}
         </div>
-      ) : data.length === 0 ? (
+      ) : data.transactions.length === 0 ? (
         <p className="p-10 text-center text-sm text-slate-500">
           No transactions found 🎉
         </p>
       ) : (
         <div className="space-y-4">
-          {data.map((trx: any) => {
+          {data.transactions.map((trx: any) => {
             const event = trx.items?.[0]?.event;
 
             return (
@@ -113,6 +117,6 @@ export default function PendingTransactionsClient() {
           })}
         </div>
       )}
-    </div>
+    </div>    
   );
 }
