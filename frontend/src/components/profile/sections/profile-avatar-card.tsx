@@ -23,9 +23,7 @@ export default function ProfileAvatarCard() {
       const fd = new FormData();
       fd.append("avatar", file);
 
-      const res = await api.patch("/users/me/avatar", fd, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await api.patch("/users/me/avatar", fd);
 
       const updatedUser = res.data.data;
 

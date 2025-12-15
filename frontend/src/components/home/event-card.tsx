@@ -1,98 +1,69 @@
-import { DiscoverEvent } from "@/hooks/useDiscoverEventsInfinite";
-import { format } from "date-fns";
 import Link from "next/link";
-import { Heart } from "lucide-react";
+import { format } from "date-fns";
 
 interface EventCardProps {
-  event: DiscoverEvent;
+  event: {
+    id: string;
+    title: string;
+    bannerUrl?: string | null;
+    startDate: string;
+    endDate: string;
+    price: number;
+    isPaid: boolean;
+    organizer?: { name: string };
+  };
 }
 
-function formatDateRange(startDate: string, endDate: string) {
-  try {
-    const start = new Date(startDate);
-    const end = new Date(endDate);
-
-    if (
-      start.toDateString() === end.toDateString()
-    ) {
-      return format(start, "d MMM yyyy");
-    }
-
-    return `${format(start, "d MMM")} - ${format(end, "d MMM yyyy")}`;
-  } catch {
-    return "";
-  }
+function formatDateRange(start: string, end: string) {
+  return `${format(new Date(start), "d MMM")} – ${format(
+    new Date(end),
+    "d MMM yyyy"
+  )}`;
 }
 
 export function EventCard({ event }: EventCardProps) {
-  const hasBanner = !!event.bannerUrl;
-  const rating = event.organizerProfile?.rating ?? null;
-
   return (
-    <article className="group flex flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition-all hover:-translate-y-1 hover:border-indigo-200 hover:shadow-lg">
-      <div className="relative h-40 w-full overflow-hidden bg-slate-200">
-        {hasBanner ? (
+    <Link
+      href={`/events/${event.id}`}
+      className="group overflow-hidden rounded-xl border bg-white shadow-sm transition hover:shadow-md"
+    >
+      {/* Banner */}
+      <div className="relative aspect-video bg-slate-200">
+        {event.bannerUrl ? (
           <img
-            src={event.bannerUrl!}
+            src={event.bannerUrl}
             alt={event.title}
-            className="h-full w-full object-cover transition-all duration-300 group-hover:scale-105"
+            className="h-full w-full object-cover transition group-hover:scale-105"
           />
         ) : (
-          <div className="flex h-full w-full items-center justify-center bg-linear-to-tr from-indigo-600 via-sky-500 to-indigo-400 text-xs font-semibold text-white">
-            EventHub
-          </div>
-        )}
-
-        {/* Wishlist button */}
-        <button className="absolute top-2 right-2 rounded-full bg-white/80 p-1 shadow-md opacity-0 transition group-hover:opacity-100">
-          <Heart className="h-4 w-4 text-slate-600 hover:text-red-500 transition" />
-        </button>
-
-        {/* Rating */}
-        {rating !== null && (
-          <div className="absolute bottom-2 left-2 rounded-full bg-black/60 px-2 py-0.5 text-[11px] font-medium text-amber-300 backdrop-blur">
-            ★ {rating.toFixed(1)}
+          <div className="flex h-full w-full items-center justify-center text-xs text-slate-500">
+            No Image
           </div>
         )}
       </div>
 
-      <div className="flex flex-1 flex-col space-y-2 p-3.5">
+      {/* Content */}
+      <div className="space-y-1.5 p-3">
         <h3 className="line-clamp-2 text-sm font-semibold text-slate-900">
           {event.title}
         </h3>
 
-        <p className="line-clamp-1 text-xs text-slate-500">
-          {event.location || "Location TBA"}
-        </p>
-
-        <p className="text-[11px] font-medium text-indigo-600">
+        <p className="text-xs text-slate-500">
           {formatDateRange(event.startDate, event.endDate)}
         </p>
 
-        <div className="mt-auto flex items-center justify-between pt-2 text-xs">
-          <div className="flex flex-col">
-            {event.isPaid ? (
-              <>
-                <span className="text-slate-500">Mulai dari</span>
-                <span className="text-sm font-semibold text-indigo-600">
-                  Rp{event.price.toLocaleString("id-ID")}
-                </span>
-              </>
-            ) : (
-              <span className="rounded-full bg-emerald-50 px-2 py-1 text-[11px] font-semibold text-emerald-600">
-                FREE EVENT
-              </span>
-            )}
-          </div>
+        <p className="text-sm font-semibold text-indigo-600">
+          {event.isPaid
+            ? `Rp${event.price.toLocaleString("id-ID")}`
+            : "FREE"}
+        </p>
 
-          <Link
-            href={`/events/${event.id}`}
-            className="inline-flex items-center rounded-full border border-slate-200 px-3 py-1 text-[11px] font-semibold text-slate-700 transition hover:border-indigo-200 hover:bg-indigo-50 hover:text-indigo-700"
-          >
-            Detail
-          </Link>
-        </div>
+        {event.organizer?.name && (
+          <p className="pt-1 text-[11px] text-slate-400">
+            by {event.organizer.name}
+          </p>
+        )}
       </div>
-    </article>
+    </Link>
   );
 }

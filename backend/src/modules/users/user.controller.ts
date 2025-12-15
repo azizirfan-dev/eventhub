@@ -52,19 +52,25 @@ export class UserController extends BaseController {
   };
 
   /** ⬇️ NEW: Update Avatar */
-  updateAvatar = async (req: Request, res: Response) => {
-    try {
-      const userId = req.user?.id!;
-      const file = req.file;
+  /** ⬇️ Update Avatar */
+updateAvatar = async (req: Request, res: Response) => {
+  try {
+    const userId = req.user?.id!;
+    const file = req.file as Express.Multer.File;
 
-      if (!file) {
-        return this.sendError(res, "No file uploaded", 400);
-      }
+    console.log("FILE:", file); // ✅ DEBUG OK
 
-      const result = await this.userService.updateAvatar(userId, file.path);
-      return this.sendSuccess(res, result, "Avatar updated");
-    } catch (error) {
-      return this.sendError(res, error);
+    if (!file) {
+      return this.sendError(res, "No file uploaded", 400);
     }
-  };
+
+    // ⬅️ KIRIM FILE UTUH, BUKAN file.path
+    const result = await this.userService.updateAvatar(userId, file);
+
+    return this.sendSuccess(res, result, "Avatar updated");
+  } catch (error) {
+    return this.sendError(res, error);
+  }
+};
+
 }

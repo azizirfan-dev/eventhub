@@ -33,7 +33,7 @@ app.use(cors(corsOptions));
 // Routes
 app.get("/", (req, res) => res.json({ message: "EventHub API running..." }));
 app.use("/auth", authRoutes);
-app.use("/user", userRoutes);
+app.use("/users", userRoutes);
 app.use("/events", eventRoutes);
 app.use("/transactions", transactionRoutes);
 app.use("/reviews", reviewRoutes);

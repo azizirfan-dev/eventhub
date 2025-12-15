@@ -68,7 +68,7 @@ export default function EventEditClient({ event }: Props) {
       });
 
       alert("Event updated!");
-      location.reload();
+      window.location.reload();
     } catch (err) {
       console.error(err);
       alert("Failed to update");

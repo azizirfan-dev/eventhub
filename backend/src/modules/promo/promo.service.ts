@@ -7,6 +7,13 @@ export class PromoService extends BaseService {
   async create(organizerId: string, data: CreatePromoDTO) {
     const { code, discount, isPercent, isGlobal, eventId, usageLimit, startDate, endDate, description } = data;
 
+    const existing = await this.prisma.promo.findFirst({
+      where: { code, deletedAt: null },
+    });
+    if (existing) {
+      throw new AppError("Promo code already exists", 409);
+    }
+
     if (!isGlobal && !eventId)
       throw new AppError("eventId required for non-global promo", 400);
 
@@ -24,7 +31,7 @@ export class PromoService extends BaseService {
         isPercent: isPercent ?? false,
         isGlobal: isGlobal ?? false,
         eventId: isGlobal ? null : eventId,
-        organizerId: isGlobal ? null : organizerId,
+        organizerId,
         startDate: new Date(startDate),
         endDate: new Date(endDate),
         usageLimit: usageLimit ?? null,
