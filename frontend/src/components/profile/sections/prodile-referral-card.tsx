@@ -4,7 +4,7 @@
 import { useAuthStore } from "@/store/auth";
 
 export default function ProfileReferralCard() {
-  const user = useAuthStore((s) => s.user); // ⬅️ ambil user
+  const user = useAuthStore((s) => s.user); 
 
   if (!user) return null;
 

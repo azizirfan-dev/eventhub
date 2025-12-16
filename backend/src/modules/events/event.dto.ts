@@ -3,7 +3,7 @@ export interface CreateEventDTO {
   description: string;
   category: string;
   location: string;
-  startDate: string; // ISO from frontend
+  startDate: string; 
   endDate: string;
   totalSeats: number;
   price: number;

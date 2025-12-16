@@ -65,7 +65,7 @@ export class UserService extends BaseService {
     };
   }
 
-  // 🔥 FIXED AVATAR UPLOAD
+  
   async updateAvatar(userId: string, file: Express.Multer.File) {
     if (!file) {
       throw new AppError("Avatar file is required", 400);

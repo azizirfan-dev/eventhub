@@ -27,7 +27,6 @@ export default function ProfileAvatarCard() {
 
       const updatedUser = res.data.data;
 
-      // 🔥 Update store with latest user info
       setAuth({ token, user: updatedUser });
 
       alert("Avatar updated!");

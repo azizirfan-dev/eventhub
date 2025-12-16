@@ -32,7 +32,6 @@ export function EditPromoDialog({ promo, onClose }: { promo: any; onClose: () =>
     description: "",
   });
 
-  // Load initial data
   useEffect(() => {
     if (promo) {
       setForm({

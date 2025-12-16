@@ -13,7 +13,6 @@ export function EventBanner({ event }: EventBannerProps) {
       <div className="relative mx-auto max-w-6xl px-4 pb-6 pt-6 sm:px-6 lg:px-8">
         <div className="relative h-56 overflow-hidden rounded-3xl sm:h-72 lg:h-80">
           {hasBanner ? (
-            // eslint-disable-next-line @next/next/no-img-element
             <img
               src={event.bannerUrl!}
               alt={event.title}

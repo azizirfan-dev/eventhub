@@ -63,14 +63,13 @@ export function PaymentClient({ transactionId }: PaymentClientProps) {
     return () => clearInterval(interval);
   }, [transaction?.expiresAt, transaction?.status, router]);
 
-  // Status dependent redirect (DONE → /my-tickets, REJECTED → stay + alert)
+
   useEffect(() => {
     if (!transaction) return;
 
     if (transaction.status === "DONE") {
       router.replace("/my-tickets");
     } else if (transaction.status === "REJECTED") {
-      // simple info; bisa diganti toast nanti
       alert("Your payment has been rejected. Please create a new transaction.");
     }
   }, [transaction?.status, transaction, router]);
@@ -135,7 +134,6 @@ export function PaymentClient({ transactionId }: PaymentClientProps) {
       </div>
 
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)]">
-        {/* Left: detail + items */}
         <section className="space-y-4">
           <div className="rounded-2xl border border-slate-200 bg-white p-4">
             <h2 className="text-sm font-semibold text-slate-900">
@@ -145,7 +143,6 @@ export function PaymentClient({ transactionId }: PaymentClientProps) {
             {firstItem && (
               <div className="mt-3 flex gap-3">
                 <div className="hidden h-16 w-24 overflow-hidden rounded-lg bg-slate-200 sm:block">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
                   {firstItem.event.bannerUrl ? (
                     <img
                       src={firstItem.event.bannerUrl}
@@ -207,8 +204,6 @@ export function PaymentClient({ transactionId }: PaymentClientProps) {
             </ul>
           </div>
         </section>
-
-        {/* Right: upload proof */}
         <UploadProofSection
           transactionId={transaction.id}
           status={transaction.status}

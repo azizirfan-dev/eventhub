@@ -35,7 +35,7 @@ export const promoMiddleware = async (
       throw new AppError("Promo usage limit reached", 400);
     }
 
-    // ✅ VALIDASI EVENT (PASTIKAN PROMO MATCH EVENT)
+    
     if (!promo.isGlobal) {
       // Ambil ticket pertama, cek eventId-nya
       const firstItem = items[0];
@@ -50,7 +50,7 @@ export const promoMiddleware = async (
       }
     }
 
-    // Simpan promo ke request (tanpa finalPrice biar TS gak marah)
+    // Simpan promo ke request 
     (req as any).promo = promo;
 
     next();

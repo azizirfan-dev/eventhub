@@ -37,7 +37,6 @@ export function EventBuyBox({ event }: EventBuyBoxProps) {
   const handleBuy = () => {
     if (!token) {
       alert("Please login to buy tickets.");
-      // nanti bisa router.push("/login");
       return;
     }
 
@@ -56,7 +55,6 @@ export function EventBuyBox({ event }: EventBuyBoxProps) {
       },
       {
         onSuccess: (trx) => {
-          // redirect ke transaksi detail setelah create
           router.push(`/transactions/${trx.id}`);
         },
         onError: (error: any) => {

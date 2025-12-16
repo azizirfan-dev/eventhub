@@ -3,10 +3,6 @@ import { TransactionService } from "../modules/transactions/transaction.service"
 
 const trxService = new TransactionService();
 
-/**
- * EXPIRE WAITING_PAYMENT → setiap 5 menit
- * (supaya gak terlalu spam database)
- */
 cron.schedule("*/5 * * * *", async () => {
   console.log("[CRON] Running expireOverdueTransactions...");
   try {
@@ -16,9 +12,6 @@ cron.schedule("*/5 * * * *", async () => {
   }
 });
 
-/**
- * AUTO CANCEL WAITING_ADMIN → setiap jam
- */
 cron.schedule("0 * * * *", async () => {
   console.log("[CRON] Running autoCancelWaitingAdminTransactions...");
   try {

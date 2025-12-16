@@ -1,10 +1,7 @@
 import cron from "node-cron";
 import { prisma } from "../config/database";
 
-/**
- * Run everyday at midnight
- * Mark expired promos as deleted
- */
+
 cron.schedule("0 0 * * *", async () => {
   console.log("[CRON] Cleaning expired promos...");
   
@@ -13,7 +10,7 @@ cron.schedule("0 0 * * *", async () => {
   const result = await prisma.promo.updateMany({
     where: {
       deletedAt: null,
-      endDate: { lt: now } // sudah lewat masa berlaku
+      endDate: { lt: now } 
     },
     data: {
       deletedAt: now

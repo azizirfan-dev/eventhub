@@ -11,23 +11,18 @@ interface SearchBarProps {
 
 export function SearchBar({ value, onSearchDebouncedChange }: SearchBarProps) {
   const [input, setInput] = useState(value);
-
-  // Sync from filters BUT only if different (avoid rollback bug)
   useEffect(() => {
     if (value !== input) {
       setInput(value);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [value]);
 
-  // Single debounce source of truth
  useEffect(() => {
   const id = setTimeout(() => {
     onSearchDebouncedChange(input.trim());
   }, 400);
 
   return () => clearTimeout(id);
-// eslint-disable-next-line react-hooks/exhaustive-deps
 }, [input]);
 
 

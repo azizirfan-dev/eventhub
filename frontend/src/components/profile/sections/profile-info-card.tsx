@@ -4,7 +4,7 @@
 import { useAuthStore } from "@/store/auth";
 import { useState } from "react";
 import { api } from "@/lib/api";
-import ChangePasswordDialog from "./change-password-dialog"; // Fix: nama import
+import ChangePasswordDialog from "./change-password-dialog"; 
 
 export default function ProfileInfoCard() {
   const user = useAuthStore((s) => s.user);
@@ -29,8 +29,6 @@ export default function ProfileInfoCard() {
       );
 
       const updatedUser = res.data.data;
-
-      // 🔥 Update seluruh auth state (user + token tetap)
       setAuth({ token, user: updatedUser });
 
       alert("Updated successfully!");
@@ -72,7 +70,6 @@ export default function ProfileInfoCard() {
         Save Changes
       </button>
 
-      {/* Change Password */}
       <ChangePasswordDialog />
     </div>
   );

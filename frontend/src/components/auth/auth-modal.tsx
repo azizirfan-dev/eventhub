@@ -39,7 +39,7 @@ export function AuthModal() {
     loginMutation.mutate(loginForm, {
       onSuccess: () => {
         close();
-        router.push("/"); // redirect to Home
+        router.push("/"); 
       },
       onError: (err: any) => {
         const message =
@@ -66,7 +66,7 @@ export function AuthModal() {
       {
         onSuccess: () => {
           close();
-          router.push("/"); // after auto login, go home
+          router.push("/"); 
         },
         onError: (err: any) => {
           const message =

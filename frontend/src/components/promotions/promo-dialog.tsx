@@ -21,7 +21,7 @@ export function CreatePromoDialog() {
   const [open, setOpen] = useState(false);
   const create = useCreatePromo();
 
-  // ⚠️ FIX DI SINI: selalu pakai Array.isArray
+  
   const { data: eventsData, isLoading: loadingEvents } = useMyEvents();
   const events = Array.isArray(eventsData) ? eventsData : [];
 

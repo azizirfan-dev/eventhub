@@ -10,7 +10,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
   const { isAuthenticated, user } = useAuthStore();
   const [hydrated, setHydrated] = useState(false);
 
-  // Wait until Zustand loads from localStorage
+  
   useEffect(() => {
     setHydrated(true);
   }, []);
@@ -18,7 +18,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (!hydrated) return;
 
-    // If still not authenticated after hydration → redirect
+    
     if (!isAuthenticated) {
       router.replace("/");
       return;
@@ -38,7 +38,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
     );
   }
 
-  // Auth valid → render dashboard
+  
   return (
     <div className="flex min-h-screen bg-slate-50">
       <Sidebar />

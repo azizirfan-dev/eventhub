@@ -4,7 +4,6 @@ import { TransactionStatus } from "@prisma/client";
 
 export function initTransactionJobs() {
 
-  // ⏱ Every 5 minutes → Expire WAITING_PAYMENT > 2h
   cron.schedule("*/5 * * * *", async () => {
     const now = new Date();
     console.log("[CRON] Checking expired WAITING_PAYMENT transactions...");
@@ -54,7 +53,7 @@ export function initTransactionJobs() {
     console.log(`[CRON] Expired transactions processed: ${expired.length}`);
   });
 
-  // ⏱ Every hour → Cancel WAITING_ADMIN > 3 days
+  // Every hour → Cancel WAITING_ADMIN > 3 days
   cron.schedule("0 * * * *", async () => {
     const threeDaysAgo = new Date(Date.now() - 3 * 24 * 60 * 60 * 1000);
     console.log("[CRON] Checking stale WAITING_ADMIN transactions...");

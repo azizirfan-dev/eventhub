@@ -24,8 +24,6 @@ export function PromoForm({ promo, onSuccess }: PromoFormProps) {
     endDate: "",
     description: "",
   });
-
-  // Prefill kalau edit
   useEffect(() => {
     if (promo) {
       setForm({

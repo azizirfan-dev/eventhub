@@ -7,10 +7,6 @@ declare global {
 const isDev = process.env.NODE_ENV === "development";
 const isTest = process.env.NODE_ENV === "test";
 
-// Default behavior:
-// 🧪 test  -> no query logs
-// 🚀 production -> no query logs
-// 🛠 dev -> show query logs unless disabled
 const shouldLogQuery = isDev && !isTest && process.env.LOG_QUERIES !== "false";
 
 export const prisma =

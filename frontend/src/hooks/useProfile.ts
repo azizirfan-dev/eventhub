@@ -6,7 +6,7 @@ import { api } from "@/lib/api";
 export interface UpdateProfilePayload {
   name: string;
   email: string;
-  avatarUrl?: string; // ⬅️ Add this
+  avatarUrl?: string; 
 }
 
 export function useProfile() {
@@ -14,7 +14,7 @@ export function useProfile() {
     queryKey: ["profile"],
     queryFn: async () => {
       const res = await api.get("/user/profile"); 
-      return res.data.data; // Profile sudah include avatarUrl?
+      return res.data.data;
     },
     staleTime: 1000 * 60 * 5,
   });
@@ -23,12 +23,12 @@ export function useProfile() {
 export function useUpdateProfile() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async (data: UpdateProfilePayload) => { // ⬅️ Update tipe
+    mutationFn: async (data: UpdateProfilePayload) => { 
       const res = await api.put("/user/profile", data);
       return res.data.data;
     },
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["profile"] }); // Refresh auto
+      qc.invalidateQueries({ queryKey: ["profile"] }); 
     },
   });
 }

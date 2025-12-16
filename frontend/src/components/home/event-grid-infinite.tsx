@@ -9,7 +9,7 @@ import { EventCard } from "./event-card";
 
 interface EventGridInfiniteProps {
   filters: DiscoverFiltersInput;
-  initialEvents?: any[]; // ➕ ADD THIS
+  initialEvents?: any[]; 
 }
 
 export function EventGridInfinite({
@@ -55,8 +55,6 @@ export function EventGridInfinite({
       observerRef.current = null;
     };
   }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
-
-  // 🧠 PRIORITIZE SSR DATA FIRST, THEN PAGINATED DATA
   const flatEvents =
     data?.pages.flatMap((p) => p.events) ??
     initialEvents ??

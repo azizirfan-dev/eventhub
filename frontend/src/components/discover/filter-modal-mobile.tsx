@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { useLocations } from "@/hooks/useLocations";
 import type { DiscoverFiltersState } from "@/hooks/useDiscoverFilters";
 
-// Simple: lokal list kategori
+
 const CATEGORIES = [
   "Music",
   "Education",
@@ -34,10 +34,7 @@ export function FilterModalMobile({
   setFilters,
 }: Props) {
   const { data } = useLocations();
-
-  // paksa type locations supaya bukan unknown[]
   const locations = (data ?? []) as { location?: string | null }[];
-
   const updateFilter = (
     key: keyof DiscoverFiltersState,
     value?: string

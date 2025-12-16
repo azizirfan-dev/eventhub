@@ -73,13 +73,12 @@ export class TransactionService extends BaseService {
     }
 
     // APPLY POINTS
-    // APPLY POINTS SAFETY CHECK
 let usedPoints = 0;
 if (usePoints > 0) {
   const validPoints = await tx.pointHistory.aggregate({
     where: {
       userId,
-      deletedAt: null, // exclude expired points
+      deletedAt: null, 
       expiresAt: { gt: new Date() }, // only valid (not expired)
     },
     _sum: { amount: true },
@@ -243,7 +242,7 @@ if (usePoints > 0) {
 
       sendEmail(
         trx.user.email,
-        "Transaction Rejected ❌",
+        "Transaction Rejected",
         `Hi ${trx.user.name}, your transaction for ${event.title} has been rejected.`
       ).catch(console.error);
 
@@ -382,7 +381,6 @@ if (usePoints > 0) {
   async getPendingTransactions(organizerId: string, page: number = 1, limit: number = 10) {
     const skip = (page - 1) * limit;
 
-    // Hanya transaksi WAITING_ADMIN dari event milik organizer
     const transactions = await this.prisma.transaction.findMany({
       where: {
         status: "WAITING_ADMIN",

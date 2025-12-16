@@ -14,7 +14,7 @@ export function QueryProvider({ children }: QueryProviderProps) {
       new QueryClient({
         defaultOptions: {
           queries: {
-            staleTime: 1000 * 30, // 30 detik
+            staleTime: 1000 * 30, 
             refetchOnWindowFocus: false,
             retry: 1,
           },

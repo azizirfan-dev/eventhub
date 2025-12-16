@@ -3,7 +3,7 @@ import { BaseController } from "../../core/base.controller";
 import { TransactionService } from "./transaction.service";
 import { CreateTransactionDTO, UploadProofDTO } from "./transaction.dto";
 import { AppError } from "../../utils/app-error";
-import { Result } from "express-validator";
+
 
 export class TransactionController extends BaseController {
   private transactionService = new TransactionService();

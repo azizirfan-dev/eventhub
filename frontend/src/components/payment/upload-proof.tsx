@@ -176,7 +176,6 @@ export function UploadProofSection({
                   key={p.id ?? idx}
                   className="overflow-hidden rounded-lg border border-slate-200 bg-slate-100"
                 >
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={p.url}
                     alt="Payment proof"

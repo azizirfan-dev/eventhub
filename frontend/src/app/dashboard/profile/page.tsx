@@ -84,7 +84,7 @@ export default function ProfilePage() {
       <h1 className="text-xl font-bold mb-4">My Profile</h1>
 
       <div className="flex items-start gap-6">
-        {/* Avatar */}
+
         <div className="flex flex-col items-center gap-2">
           <img
             src={form.avatarUrl || "/placeholder-avatar.png"}

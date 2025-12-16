@@ -73,7 +73,6 @@ export default function UploadProofPage() {
         Upload Payment Proof
       </h2>
 
-      {/* Upload UI */}
       <div className="space-y-2">
         <label className="text-sm font-medium text-slate-700">
           Upload transfer receipt

@@ -22,7 +22,7 @@ async function uploadProofRequest(
   const formData = new FormData();
 
   payload.files.forEach((file) => {
-    formData.append("images", file); // harus "images" sesuai backend
+    formData.append("images", file); 
   });
 
   const res = await api.post<UploadProofApiResponse>(

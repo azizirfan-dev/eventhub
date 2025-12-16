@@ -24,7 +24,7 @@ export class EventController extends BaseController {
     const payload = {
       ...req.body,
       totalSeats: parseInt(req.body.totalSeats),
-      availableSeats: parseInt(req.body.totalSeats), // awalnya = total
+      availableSeats: parseInt(req.body.totalSeats), 
       price: parseInt(req.body.price),
       isPaid: req.body.isPaid === "true" || req.body.isPaid === true,
       startDate: new Date(req.body.startDate),

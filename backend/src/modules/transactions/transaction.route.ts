@@ -10,7 +10,7 @@ import { promoMiddleware } from "../../middlewares/promo.middleware";
 const router = Router();
 const controller = new TransactionController();
 
-// 🚀 PENDING harus sebelum `/:id`
+
 router.get("/pending", authMiddleware, controller.getPendingTransactions);
 
 router.post(
